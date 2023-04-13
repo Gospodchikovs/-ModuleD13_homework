@@ -1,0 +1,40 @@
+<!--  наследуемся от шаблона default.html, который мы создавали ещё во времена flatpages -->
+{% extends 'flatpages/default.html' %}
+<!-- загружаем фильтры -->
+{% block title %}
+Объявления
+{% endblock title %}
+
+{% block content %}
+    <h2>Все объявления (общее количество {{ advertisments|length }})</h2>
+    {% if advertisments %}
+        <table>
+            <tr>
+                <th>
+                    Заголовок
+                </th>
+                <th>
+                    Дата публикации
+                </th>
+                <th>
+                    Содержание
+                </th>
+            </tr>
+        {% for advertisment in advertisments %}
+            <tr>
+                <td>
+                    {{ advertisment.heading }}
+                </td>
+                <td>
+                    {{ advertisment.time_create|date:'d-m-y H:i' }}
+                </td>
+                <td>
+                    {{ advertisment.body|truncatechars:50}}
+                </td>
+            </tr>
+        {% endfor %}
+        </table>
+    {% else %}
+        <h2>Объявлений нет!</h2>
+    {% endif %}
+{% endblock content %}
