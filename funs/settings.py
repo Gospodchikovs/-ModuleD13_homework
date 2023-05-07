@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/4.1/ref/settings/
 """
 import os
 from pathlib import Path
+from django_filters.conf import DEFAULTS
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -43,6 +44,7 @@ INSTALLED_APPS = [
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
+    'django_apscheduler',
 ]
 
 MIDDLEWARE = [
@@ -161,7 +163,8 @@ ACCOUNT_USERNAME_REQUIRED = True
 ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
 ACCOUNT_EMAIL_VERIFICATION = 'none'
 
-ACCOUNT_FORMS = {'signup': 'news.forms.BasicSignupForm'}
+ACCOUNT_FORMS = {'signup': 'fsite.forms.BasicSignupForm'}
+ACCOUNT_FORMS = {'signup': 'fsite.forms.RegistrationForm'}
 
 EMAIL_HOST = 'smtp.yandex.ru'
 EMAIL_PORT = 465
@@ -173,3 +176,14 @@ APSCHEDULER_DATETIME_FORMAT = 'N j, Y, f:s a'
 APSCHEDULER_RUN_NOW_TIMEOUT = 25
 
 LOGIN_REDIRECT_URL = '/'
+
+def FILTERS_VERBOSE_LOOKUPS():
+    verbose_lookups = DEFAULTS['VERBOSE_LOOKUPS'].copy()
+    verbose_lookups.update({
+        'gt': 'позже указанной',
+        'icontains': 'содержит',
+        'in': 'из списка',
+        'date': ''
+    })
+    return verbose_lookups
+FILTERS_DISABLE_HELP_TEXT = True

@@ -21,18 +21,19 @@ from django.contrib.auth.models import User
 #
 # Заранее спасибо!
 
+TYPES = [('TANKS', 'Танки'),
+         ('HILY', 'Хилы'),
+         ('DD', 'ДД'),
+         ('TRADES_PEOPLE', 'Торговцы'),
+         ('GUILD_MATERS', 'Гилдмастеры'),
+         ('QUEST_GILVERS', 'Квестгиверы'),
+         ('BLACKMITHS', 'Кузнецы'),
+         ('TANNERS', 'Кожевники'),
+         ('POTION_MAKERS', 'Зельевары'),
+         ('SPELL_MASTERS', 'Мастера заклинаний')]
+
 
 class Category(models.Model):
-    TYPES = [('TANKS', 'Танки'),
-             ('HILY', 'Хилы'),
-             ('DD', 'ДД'),
-             ('TRADES_PEOPLE', 'Торговцы'),
-             ('GUILD_MATERS', 'Гилдмастеры'),
-             ('QUEST_GILVERS', 'Квестгиверы'),
-             ('BLACKMITHS', 'Кузнецы'),
-             ('TANNERS', 'Кожевники'),
-             ('POTION_MAKERS', 'Зельевары'),
-             ('SPELL_MASTERS', 'Мастера заклинаний')]
     topic = models.CharField(max_length=15, choices=TYPES, unique=True, verbose_name='Категория')
 
     def __str__(self):
@@ -40,11 +41,12 @@ class Category(models.Model):
 
 
 class Advertisment(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=u'Пользователь')
     time_create = models.DateTimeField(auto_now_add=True, verbose_name=u'Дата создания')
     category = models.ForeignKey(Category, verbose_name=u'Категория', on_delete=models.DO_NOTHING)
     heading = models.CharField( max_length=255, verbose_name=u'Заголовок')
-    body = models.TextField(verbose_name=u'Текст')
+    body = models.TextField(verbose_name=u'Тело')
+
 
     def __str__(self):
         return f'{self.user.username}: {self.heading[:30]} - {self.time_create}'
@@ -66,9 +68,9 @@ class Comment(models.Model):
 class Subscriber(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
-    def add_subscriber(self, user):
-        self.user = user
-        self.save()
+    @staticmethod
+    def add_subscriber(user):
+        Subscriber.objects.create(user=user)
 
     @staticmethod
     def delete_subscriber(user):
@@ -77,3 +79,25 @@ class Subscriber(models.Model):
     def __str__(self):
         user = self.user.username
         return f'{user}'
+
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, related_name='profile', default=None, on_delete=models.CASCADE)
+    code = models.CharField(max_length=50,blank=True, null=True, default=None)
+    date = models.DateField(blank=True, null=True)
+
+    def get_context_data(self, **kwargs):
+        # класс для передачи в страницу - категория и признак полписки польщователя
+        class Sublist:
+            def __init__(self, news_category, subscribed):
+                self.category = news_category  # категория
+                self.is_subscribed = subscribed  # признак подписки пользоывателя на данную категорию
+
+        context = super().get_context_data(**kwargs)
+        # формируем список объектов Sublist(категория, признак подписки) для передачи в страницу
+        user_cat = list(Subscriber.objects.filter(user=self.request.user).values('category__topic').distinct())
+        all_cat = list(Category.objects.all().values('topic'))  # список всех категорий
+        user_cat_list = list(map(lambda cat: cat['category__topic'], user_cat))  # список подписных категорий
+        subscribed_list = list(map(lambda cat: Sublist(cat['topic'], cat['topic'] in user_cat_list), all_cat))
+        context['subscribed'] = subscribed_list
+        return context
