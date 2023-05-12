@@ -3,7 +3,10 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User, Group
 from django.forms import ModelForm, ChoiceField
+from django_summernote.widgets import SummernoteWidget, SummernoteInplaceWidget
+
 from .models import Advertisment, TYPES, Comment
+from django_ckeditor_5.widgets import CKEditor5Widget
 
 
 class ProfileEditForm(ModelForm):
@@ -88,11 +91,20 @@ class BasicSignupForm(SignupForm):
 
 
 class AdvertismentForm(ModelForm):
-    category = ChoiceField(choices=TYPES, label='Категория')
+    body = forms.CharField(widget=SummernoteWidget(), label='Вложение')  # виджет для включенрия в текст контента
 
     class Meta:
         model = Advertisment
         fields = ['category', 'heading', 'body']
+
+
+class AdvertismentListForm(ModelForm):
+    body = forms.CharField(widget=SummernoteWidget(), label='Вложение')  # виджет для включенрия в текст контента
+    time = forms.TimeField()
+
+    class Meta:
+        model = Advertisment
+        fields = ['user', 'category', 'heading', 'time', 'body']
 
 
 class CommentForm(ModelForm):
@@ -103,6 +115,8 @@ class CommentForm(ModelForm):
 
 
 class PostForm(ModelForm):
+    body = forms.CharField(widget=SummernoteWidget(), label='Вложение')  # виджет для включенрия в текст контента
+
     class Meta:
         model = Advertisment
         fields = ['user', 'category', 'heading', 'body']

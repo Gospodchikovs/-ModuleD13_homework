@@ -8,9 +8,9 @@ from django.core.mail import send_mail
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.views.generic import ListView, TemplateView, UpdateView, CreateView, DetailView
-
-from .filters import AdvertismentFilter
-from .forms import RegistrationForm, MyActivationCodeForm, ProfileEditForm, AdvertismentForm, CommentForm
+from .filters import AdvertismentFilter, CommentFilter
+from .forms import RegistrationForm, MyActivationCodeForm, ProfileEditForm, AdvertismentForm, CommentForm, \
+    AdvertismentListForm
 from .models import Advertisment, Profile, Category, Comment, Subscriber
 
 
@@ -33,6 +33,7 @@ class AdvertismentList(ListView):
     template_name = 'advertisments.html'
     context_object_name = 'advertisments'
     ordering = '-time_create'
+    form_class = AdvertismentListForm
 
     def get_queryset(self):
         queryset = super().get_queryset()
@@ -133,9 +134,9 @@ class AdvertismentCreate(LoginRequiredMixin, PermissionRequiredMixin, CreateView
     success_url = '/'
 
     def post(self, request, *args, **kwargs):
-        news = Advertisment.objects.create(
+        Advertisment.objects.create(
             user=request.user,
-            category=Category.objects.get(topic=request.POST['category']),
+            category=Category.objects.get(id=request.POST['category']),
             heading=request.POST['heading'],
             body=request.POST['body']
         )
@@ -158,18 +159,30 @@ class AdvertismentUpdate(LoginRequiredMixin, PermissionRequiredMixin, UpdateView
         return return_object
 
 
-class AdvertismentDetail(DetailView):
-    model = Advertisment
+class AdvertismentDetail(ListView):
+    model = Comment
     template_name = 'advertisment.html'
-    context_object_name = 'advertisment'
+    context_object_name = 'comments'
+
+    def get_queryset(self):
+        queryset = super().get_queryset().filter(advertisment_id=self.kwargs['pk'])     # отклики из нужного объявления
+        return CommentFilter(self.request.GET, queryset=queryset).qs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        is_author = self.object.user == self.request.user   # текущий пользователь - автор просматриваемого объявления
+        context['filter'] = CommentFilter(self.request.GET, queryset=self.get_queryset())
+        advertisment = Advertisment.objects.get(id=self.kwargs['pk'])
+        context['advertisment'] = advertisment
+        is_author = advertisment.user == self.request.user   # текущий пользователь - автор просматриваемого объявления
         context['is_author'] = is_author
-        comments = Comment.objects.filter(advertisment=self.object)
-        context['comments'] = comments
+        context['num_comments'] = Comment.objects.filter(advertisment=self.kwargs['pk']).count()
         return context
+
+    def post(self, request, *args, **kwargs):
+        form = self.form_class(request.POST)
+        if form.is_valid():
+            form.save()
+        return super().get(request, *args, **kwargs)
 
 
 class CommentCreate(LoginRequiredMixin, PermissionRequiredMixin, CreateView):

@@ -22,51 +22,18 @@
             <input type="submit" value="Найти">
             <a href="{% url 'advertisments' %}"> Сбросить фильтр </a>
         </form>
-        <table>
-            <tr>
-                <th>
-                    Автор
-                </th>
-                <th>
-                    Категория
-                </th>
-                <th>
-                    Заголовок
-                </th>
-                <th>
-                    Дата публикации
-                </th>
-                <th>
-                    Содержание
-                </th>
-                <th>
-                </th>
-            </tr>
+        <br>
         {% for advertisment in advertisments %}
-            <tr>
-                <td>
-                    {{ advertisment.user }}
-                </td>
-                <td>
-                    {{ advertisment.category }}
-                </td>
-                <td>
-                     <a href="{% url 'advertisment' advertisment.id %}">{{ advertisment.heading  }}</a>
-                </td>
-                <td>
-                    {{ advertisment.time_create|date:'d-m-y H:i' }}
-                </td>
-                <td>
-                    {{ advertisment.body|truncatechars:50}}
-                </td>
-                <td>
-                    {% if advertisment.user == user%}
-                        <a href="{% url 'advertisment_update' advertisment.id %}"><u>Редактировать</u></a>
-                    {% endif %}
-                </td>
-            </tr>
+            Автор: {{ advertisment.user }} <br>
+            Категория: {{ advertisment.category }} <br>
+            Заголовок: <a href="{% url 'advertisment' advertisment.id %}">{{ advertisment.heading  }}</a> <br>
+            Дата создания: {{ advertisment.time_create|date:'d-m-y H:i' }} <br>
+            Содержимое: {{ advertisment.body|safe}} <br>
+            {% if advertisment.user == user%}
+                <a href="{% url 'advertisment_update' advertisment.id %}"><u>Редактировать</u></a>
+            {% endif %}
+            <hr>
         {% endfor %}
-        </table>
     {% else %}
         <h2>Объявлений нет!</h2>
     {% endif %}

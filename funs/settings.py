@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'allauth.account',
     'allauth.socialaccount',
     'django_apscheduler',
+    'django_summernote',
 ]
 
 MIDDLEWARE = [
@@ -133,7 +134,7 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTHENTICATION_BACKENDS = [
-    # Needed to login by username in Django admin, regardless of `allauth`
+    # Needed login by username in Django admin, regardless of `allauth`
     'django.contrib.auth.backends.ModelBackend',
 
     # `allauth` specific authentication methods, such as login by e-mail
@@ -169,7 +170,7 @@ ACCOUNT_FORMS = {'signup': 'fsite.forms.RegistrationForm'}
 EMAIL_HOST = 'smtp.yandex.ru'
 EMAIL_PORT = 465
 EMAIL_HOST_USER = 's.gospodchikov'
-EMAIL_HOST_PASSWORD = 'xshdotqgtiefwsgx'  # пароль изменен.
+EMAIL_HOST_PASSWORD = 'shdotqgtiefwsg'  # пароль изменен
 EMAIL_USE_SSL = True
 DEFAULT_FROM_EMAIL = 's.gospodchikov@yandex.ru'
 APSCHEDULER_DATETIME_FORMAT = 'N j, Y, f:s a'
@@ -177,13 +178,19 @@ APSCHEDULER_RUN_NOW_TIMEOUT = 25
 
 LOGIN_REDIRECT_URL = '/'
 
+
 def FILTERS_VERBOSE_LOOKUPS():
     verbose_lookups = DEFAULTS['VERBOSE_LOOKUPS'].copy()
     verbose_lookups.update({
-        'gt': 'позже указанной',
+        'gt': 'позже указанного',
         'icontains': 'содержит',
         'in': 'из списка',
         'date': ''
     })
     return verbose_lookups
+
+
 FILTERS_DISABLE_HELP_TEXT = True
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')

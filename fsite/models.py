@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django_ckeditor_5.fields import CKEditor5Field
 
 
 # Create your models here.
@@ -44,9 +45,8 @@ class Advertisment(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=u'Пользователь')
     time_create = models.DateTimeField(auto_now_add=True, verbose_name=u'Дата создания')
     category = models.ForeignKey(Category, verbose_name=u'Категория', on_delete=models.DO_NOTHING)
-    heading = models.CharField( max_length=255, verbose_name=u'Заголовок')
-    body = models.TextField(verbose_name=u'Тело')
-
+    heading = models.CharField(max_length=255, verbose_name=u'Заголовок')
+    body = models.TextField(verbose_name=u'Сожержимое')
 
     def __str__(self):
         return f'{self.user.username}: {self.heading[:30]} - {self.time_create}'
@@ -54,10 +54,10 @@ class Advertisment(models.Model):
 
 class Comment(models.Model):
     advertisment = models.ForeignKey(Advertisment, on_delete=models.CASCADE)
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    comment = models.CharField(max_length=255)
-    time_create = models.DateTimeField(auto_now_add=True)
-    hidden = models.BooleanField(default=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name=u'Пользователь')
+    comment = models.CharField(max_length=255, verbose_name=u'Отклик')
+    time_create = models.DateTimeField(auto_now_add=True, verbose_name=u'Время создания')
+    hidden = models.BooleanField(default=True, verbose_name=u'Вдимость')
 
     # скрыть или открыть комментарий
     def hide(self, status):
@@ -83,21 +83,21 @@ class Subscriber(models.Model):
 
 class Profile(models.Model):
     user = models.OneToOneField(User, related_name='profile', default=None, on_delete=models.CASCADE)
-    code = models.CharField(max_length=50,blank=True, null=True, default=None)
+    code = models.CharField(max_length=50, blank=True, null=True, default=None)
     date = models.DateField(blank=True, null=True)
 
-    def get_context_data(self, **kwargs):
-        # класс для передачи в страницу - категория и признак полписки польщователя
-        class Sublist:
-            def __init__(self, news_category, subscribed):
-                self.category = news_category  # категория
-                self.is_subscribed = subscribed  # признак подписки пользоывателя на данную категорию
-
-        context = super().get_context_data(**kwargs)
-        # формируем список объектов Sublist(категория, признак подписки) для передачи в страницу
-        user_cat = list(Subscriber.objects.filter(user=self.request.user).values('category__topic').distinct())
-        all_cat = list(Category.objects.all().values('topic'))  # список всех категорий
-        user_cat_list = list(map(lambda cat: cat['category__topic'], user_cat))  # список подписных категорий
-        subscribed_list = list(map(lambda cat: Sublist(cat['topic'], cat['topic'] in user_cat_list), all_cat))
-        context['subscribed'] = subscribed_list
-        return context
+    # def get_context_data(self, **kwargs):
+    #     # класс для передачи в страницу - категория и признак подписки пользователя
+    #     class Sublist:
+    #         def __init__(self, news_category, subscribed):
+    #             self.category = news_category  # категория
+    #             self.is_subscribed = subscribed  # признак подписки пользоывателя на данную категорию
+    #
+    #     context = super().get_context_data(**kwargs)
+    #     # формируем список объектов Sublist(категория, признак подписки) для передачи в страницу
+    #     user_cat = list(Subscriber.objects.filter(user=self.request.user).values('category__topic').distinct())
+    #     all_cat = list(Category.objects.all().values('topic'))  # список всех категорий
+    #     user_cat_list = list(map(lambda cat: cat['category__topic'], user_cat))  # список подписных категорий
+    #     subscribed_list = list(map(lambda cat: Sublist(cat['topic'], cat['topic'] in user_cat_list), all_cat))
+    #     context['subscribed'] = subscribed_list
+    #     return context
