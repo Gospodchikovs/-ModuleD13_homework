@@ -3,7 +3,6 @@ from .models import Advertisment, Category, Subscriber, Comment, Profile
 from django_summernote.admin import SummernoteModelAdmin
 
 # Register your models here.
-#admin.site.register(Advertisment)
 admin.site.register(Category)
 admin.site.register(Subscriber)
 admin.site.register(Comment)

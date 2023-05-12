@@ -1,9 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django_ckeditor_5.fields import CKEditor5Field
 
 
-# Create your models here.
 # Нам необходимо разработать интернет-ресурс для фанатского сервера одной известной MMORPG — что-то вроде доски
 # объявлений.
 # Пользователи нашего ресурса должны иметь возможность зарегистрироваться в нём по e-mail, получив

@@ -7,7 +7,7 @@ from django.contrib.sites.models import Site
 from django.core.mail import send_mail
 from django.http import HttpResponseRedirect
 from django.shortcuts import render, redirect
-from django.views.generic import ListView, TemplateView, UpdateView, CreateView, DetailView
+from django.views.generic import ListView, TemplateView, UpdateView, CreateView
 from .filters import AdvertismentFilter, CommentFilter
 from .forms import RegistrationForm, MyActivationCodeForm, ProfileEditForm, AdvertismentForm, CommentForm, \
     AdvertismentListForm
@@ -44,7 +44,7 @@ class AdvertismentList(ListView):
         context['filter'] = AdvertismentFilter(self.request.GET, queryset=self.get_queryset())
         is_subscriber = False
         if self.request.user.is_authenticated:
-            is_subscriber = Subscriber.objects.filter(user=self.request.user).exists()   # пользователь подписан на рссылку
+            is_subscriber = Subscriber.objects.filter(user=self.request.user).exists()   # подписан на рассылку
         context['is_subscriber'] = is_subscriber
         return context
 

@@ -1,12 +1,10 @@
 from allauth.account.forms import SignupForm
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.models import User, Group
-from django.forms import ModelForm, ChoiceField
-from django_summernote.widgets import SummernoteWidget, SummernoteInplaceWidget
-
-from .models import Advertisment, TYPES, Comment
-from django_ckeditor_5.widgets import CKEditor5Widget
+from django.contrib.auth.models import User
+from django.forms import ModelForm
+from django_summernote.widgets import SummernoteWidget
+from .models import Advertisment, Comment
 
 
 class ProfileEditForm(ModelForm):
@@ -24,7 +22,7 @@ class MyActivationCodeForm(forms.Form):
     error_css_class = 'has-error'
     error_messages = {'password_incorrect': ("Старый пароль не верный. Попробуйте еще раз."),
                       'password_mismatch': ("Пароли не совпадают."),
-                      'cod-no': ("Код не совпадает."),}
+                      'cod-no': ("Код не совпадает.")}
 
     def __init__(self, *args, **kwargs):
         super(MyActivationCodeForm, self).__init__(*args, **kwargs)
@@ -56,7 +54,7 @@ class RegistrationForm(UserCreationForm):
             'email',
             'password1',
             'password2'
-       )
+        )
 
     def clean_username(self):
         username = self.cleaned_data.get("username")
@@ -68,7 +66,7 @@ class RegistrationForm(UserCreationForm):
                 code='username_exists',  # set the error message key
             )
         except User.DoesNotExist:
-            return username  # if user does not exist so we can continue the registration process
+            return username
 
     def save(self, commit=True):
         user = super(RegistrationForm, self).save(commit=False)
